@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SallaBook — SHPE Elbasan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --shpe-blue:       #003580;
+      --shpe-blue-mid:   #004fa3;
+      --shpe-blue-light: #1a6bc7;
+      --shpe-orange:     #f47920;
+      --shpe-orange-d:   #d4660e;
+      --shpe-orange-l:   #fff3e8;
+      --bg:        #f0f4f9;
+      --surface:   #ffffff;
+      --border:    #dce6f3;
+      --text:      #0d1b35;
+      --muted:     #6b7fa3;
+      --success:   #1a7a4a;
+      --danger:    #c0392b;
+      --radius:    14px;
+      --shadow:    0 2px 16px rgba(0,53,128,0.08);
+      --shadow-lg: 0 8px 40px rgba(0,53,128,0.14);
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* AUTH */
+    .auth-page { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; }
+    .auth-left {
+      background: linear-gradient(145deg, var(--shpe-blue) 0%, var(--shpe-blue-mid) 60%, var(--shpe-blue-light) 100%);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 64px 56px; position: relative; overflow: hidden;
+    }
+    .auth-left::before {
+      content: ''; position: absolute; top: -120px; right: -120px;
+      width: 480px; height: 480px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,121,32,0.22) 0%, transparent 70%);
+    }
+    .auth-left::after {
+      content: ''; position: absolute; bottom: -80px; left: -60px;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    }
+    .auth-dots { position: absolute; bottom: 40px; right: 40px; display: grid; grid-template-columns: repeat(5,10px); gap: 8px; z-index: 1; }
+    .auth-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+    .auth-dots span:nth-child(5n+2) { background: rgba(244,121,32,0.5); }
+    .auth-logo-wrap { position: relative; z-index: 2; margin-bottom: 40px; }
+    .auth-headline { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 800; color: white; line-height: 1.15; margin-bottom: 18px; position: relative; z-index: 2; }
+    .auth-headline em { color: var(--shpe-orange); font-style: normal; }
+    .auth-tagline { font-size: 1rem; color: rgba(255,255,255,0.65); line-height: 1.75; max-width: 340px; position: relative; z-index: 2; }
+    .auth-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--shpe-orange), #ffb347); }
+    .auth-right { display: flex; flex-direction: column; justify-content: center; padding: 64px 56px; background: var(--surface); }
+    .auth-form-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
+    .auth-form-sub   { color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
+    .tab-row { display: flex; background: var(--bg); border-radius: var(--radius); padding: 4px; margin-bottom: 28px; }
+    .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--muted); }
+    .tab-btn.active { background: var(--shpe-blue); color: white; box-shadow: 0 2px 10px rgba(0,53,128,0.25); }
+
+    /* FORMS */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 7px; }
+    .form-input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: 'Outfit', sans-serif; font-size: 0.95rem; background: var(--surface); color: var(--text); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .form-input:focus { border-color: var(--shpe-blue); box-shadow: 0 0 0 3px rgba(0,53,128,0.1); }
+    select.form-input { cursor: pointer; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 22px; border: none; border-radius: var(--radius); font-family: 'Outfit', sans-serif; font-size: 0.93rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary   { background: linear-gradient(135deg, var(--shpe-blue), var(--shpe-blue-light)); color: white; width: 100%; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,53,128,0.3); }
+    .btn-orange    { background: linear-gradient(135deg, var(--shpe-orange), var(--shpe-orange-d)); color: white; }
+    .btn-orange:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(244,121,32,0.35); }
+    .btn-secondary { background: var(--bg); color: var(--text); }
+    .btn-secondary:hover { filter: brightness(0.96); }
+    .btn-danger    { background: rgba(192,57,43,0.1); color: var(--danger); }
+    .btn-danger:hover { background: var(--danger); color: white; }
+    .btn-ghost     { background: transparent; color: var(--muted); padding: 8px 12px; }
+    .btn-ghost:hover { color: var(--text); background: var(--bg); }
+    .btn-sm        { padding: 8px 16px; font-size: 0.83rem; width: auto; }
+    .btn:disabled  { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+
+    /* LAYOUT */
+    .app-layout { display: grid; grid-template-columns: 272px 1fr; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { background: linear-gradient(180deg, var(--shpe-blue) 0%, #002060 100%); padding: 0; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-header { padding: 24px 20px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px; }
+    .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; }
+    .sidebar-section { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.13em; color: rgba(255,255,255,0.28); padding: 12px 12px 5px; }
+    .nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 10px; cursor: pointer; transition: all 0.15s; color: rgba(255,255,255,0.52); font-size: 0.88rem; font-weight: 500; border: none; background: transparent; width: 100%; text-align: left; }
+    .nav-item:hover  { color: white; background: rgba(255,255,255,0.08); }
+    .nav-item.active { color: white; background: var(--shpe-orange); box-shadow: 0 2px 10px rgba(244,121,32,0.4); }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .user-chip { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,0.07); cursor: pointer; transition: background 0.15s; }
+    .user-chip:hover { background: rgba(255,255,255,0.12); }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--shpe-orange); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 0.85rem; flex-shrink: 0; }
+    .user-info { flex: 1; overflow: hidden; }
+    .user-name { font-size: 0.84rem; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+
+    /* MAIN */
+    .main-content { padding: 40px; overflow-y: auto; }
+    .page-header  { margin-bottom: 36px; }
+    .page-title   { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800; line-height: 1.1; }
+    .page-subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 5px; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-bottom: 36px; }
+    .stat-card  { background: var(--surface); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); position: relative; overflow: hidden; border: 1px solid var(--border); }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, var(--shpe-blue), var(--shpe-blue-light)); border-radius: var(--radius) var(--radius) 0 0; }
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--shpe-orange), #ffb347); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--success), #27ae60); }
+    .stat-accent-circle { position:absolute; top:16px; right:16px; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.3rem; background:var(--bg); }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 800; line-height: 1; margin: 8px 0 4px; }
+    .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ROOMS */
+    .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .room-card { background: var(--surface); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); transition: all 0.22s; border: 2px solid transparent; position: relative; overflow: hidden; }
+    .room-card-accent { position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,var(--shpe-blue),var(--shpe-blue-light)); border-radius:var(--radius) var(--radius) 0 0; }
+    .room-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--shpe-blue); }
+    .room-number { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--shpe-orange); margin-bottom: 8px; }
+    .room-name   { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 800; color: var(--shpe-blue); line-height: 1; margin-bottom: 6px; }
+    .room-location { font-size: 0.83rem; color: var(--muted); margin-bottom: 14px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag  { padding: 4px 10px; background: var(--bg); border-radius: 100px; font-size: 0.73rem; font-weight: 600; color: var(--shpe-blue); border: 1px solid var(--border); }
+
+    /* TABLE */
+    .table-card   { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); }
+    .table-header { padding: 22px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-title  { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    th    { padding: 11px 18px; text-align: left; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--border); }
+    td    { padding: 15px 18px; font-size: 0.88rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td   { background: #f5f8ff; }
+    .badge          { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; font-size: 0.73rem; font-weight: 700; }
+    .badge-active   { background: rgba(26,122,74,0.1); color: var(--success); }
+    .badge-cancelled { background: rgba(192,57,43,0.1); color: var(--danger); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,32,96,0.55); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal { background: var(--surface); border-radius: 20px; padding: 40px; width: 100%; max-width: 490px; box-shadow: var(--shadow-lg); animation: slideUp 0.25s ease; border-top: 5px solid var(--shpe-blue); }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 5px; }
+    .modal-sub   { color: var(--muted); font-size: 0.87rem; margin-bottom: 26px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 22px; }
+    .modal-actions .btn { flex: 1; }
+
+    /* ALERTS */
+    .alert         { padding: 13px 16px; border-radius: var(--radius); font-size: 0.87rem; margin-bottom: 18px; border-left: 4px solid; }
+    .alert-error   { background: rgba(192,57,43,0.07); border-color: var(--danger); color: var(--danger); }
+    .alert-success { background: rgba(26,122,74,0.07); border-color: var(--success); color: var(--success); }
+    .alert-info    { background: rgba(0,53,128,0.07); border-color: var(--shpe-blue); color: var(--shpe-blue); }
+    .alert-warning { background: rgba(244,121,32,0.08); border-color: var(--shpe-orange); color: var(--shpe-orange-d); }
+
+    /* MISC */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-icon  { font-size: 3rem; margin-bottom: 14px; }
+    .empty-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text); margin-bottom: 6px; }
+    .topbar      { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .search-box  { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 16px; box-shadow: var(--shadow); }
+    .search-box input { border: none; outline: none; font-family: 'Outfit', sans-serif; font-size: 0.88rem; background: transparent; width: 200px; color: var(--text); }
+    .spinner      { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+    .spinner-dark { border-color: rgba(0,53,128,0.15); border-top-color: var(--shpe-blue); }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .loading-box { display: flex; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: var(--muted); }
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .top-room-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .top-room-item:last-child { border-bottom: none; }
+    .rank-badge { width: 28px; height: 28px; border-radius: 50%; background: var(--shpe-blue); color: white; font-size: 0.73rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rank-badge.gold { background: var(--shpe-orange); }
+    .progress-bar  { height: 5px; background: var(--bg); border-radius: 100px; margin-top: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--shpe-blue), var(--shpe-blue-light)); border-radius: 100px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .backend-status { position: fixed; bottom: 16px; right: 16px; padding: 8px 14px; border-radius: 100px; font-size: 0.76rem; font-weight: 700; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); z-index: 999; }
+    .status-online  { background: #e6f4ed; color: var(--success); }
+    .status-offline { background: #fcecea; color: var(--danger); }
+    .status-dot     { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    .text-muted { color: var(--muted); }
+    .text-sm    { font-size: 0.83rem; }
+
+    @media(max-width:768px) {
+      .auth-page{grid-template-columns:1fr} .auth-left{display:none}
+      .app-layout{grid-template-columns:1fr} .sidebar{display:none}
+      .main-content{padding:20px} .stats-grid{grid-template-columns:1fr}
+      .rooms-grid{grid-template-columns:1fr} .admin-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const BASE = 'http://localhost:5000/api';
+const LOGO = 'https://shpe.al/wp-content/uploads/2024/04/PNG-01.png';
+
+const api = {
+  async request(path, opts = {}) {
+    const token = localStorage.getItem('cb_token');
+    const res = await fetch(`${BASE}${path}`, {
+      headers: { 'Content-Type':'application/json', ...(token?{Authorization:`Bearer ${token}`}:{}) },
+      ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || `Gabim ${res.status}`);
+    return data;
+  },
+  get:  p    => api.request(p),
+  post: (p,b)=> api.request(p, {method:'POST',   body:b}),
+  put:  (p,b)=> api.request(p, {method:'PUT',    body:b}),
+  del:  p    => api.request(p, {method:'DELETE'}),
+};
+
+async function checkBackend() {
+  try { await fetch(`${BASE}/health`, {signal:AbortSignal.timeout(2000)}); return true; }
+  catch { return false; }
+}
+
+function useApi(fn, deps=[]) {
+  const [data,setData]=useState(null); const [loading,setLoading]=useState(true); const [error,setError]=useState('');
+  const load = useCallback(async()=>{ setLoading(true); setError(''); try{setData(await fn());}catch(e){setError(e.message);}finally{setLoading(false);} }, deps);
+  useEffect(()=>{load();},[load]);
+  return {data,loading,error,reload:load};
+}
+
+function Spinner({dark}){ return <span className={`spinner ${dark?'spinner-dark':''}`}/>; }
+function Loading(){ return <div className="loading-box"><Spinner dark/> Duke ngarkuar...</div>; }
+function ApiError({msg,onRetry}){
+  return <div className="alert alert-error" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+    <span>❌ {msg}</span>
+    {onRetry && <button className="btn btn-sm btn-ghost" style={{color:'var(--danger)'}} onClick={onRetry}>Provo sërish</button>}
+  </div>;
+}
+
+function ShpeLogo({height=44, dark=false}){
+  const [err,setErr]=useState(false);
+  if(err) return (
+    <div style={{display:'flex',alignItems:'center',gap:10}}>
+      <div style={{width:height,height:height,borderRadius:10,background:'var(--shpe-orange)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:height*0.38,color:'white',flexShrink:0}}>S</div>
+      <div>
+        <div style={{fontWeight:800,fontSize:height*0.3,color:dark?'white':'var(--shpe-blue)',lineHeight:1.1}}>SHPE</div>
+        <div style={{fontSize:height*0.2,color:dark?'rgba(255,255,255,0.55)':'var(--muted)'}}>Elbasan</div>
+      </div>
+    </div>
+  );
+  return <img src={LOGO} height={height} style={{objectFit:'contain',filter:dark?'brightness(0) invert(1)':'none'}} onError={()=>setErr(true)} alt="SHPE"/>;
+}
+
+function parseEquip(eq){ if(Array.isArray(eq))return eq; if(typeof eq==='string'){try{return JSON.parse(eq);}catch{return[];}} return []; }
+
+// ── AUTH PAGE ──────────────────────────────────────────────────
+function AuthPage({onLogin}){
+  const [tab,setTab]=useState('login');
+  const [form,setForm]=useState({name:'',email:'',password:''});
+  const [error,setError]=useState('');
+  const [loading,setLoading]=useState(false);
+  const [offline,setOffline]=useState(false);
+  useEffect(()=>{checkBackend().then(ok=>setOffline(!ok));},[]);
+  const set=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const handleSubmit=async()=>{
+    setError(''); setLoading(true);
+    try{
+      if(tab==='register'&&!form.name.trim()){setError('Emri është i detyrueshëm');setLoading(false);return;}
+      const data=await api.post(tab==='login'?'/auth/login':'/auth/register', form);
+      localStorage.setItem('cb_token',data.token);
+      onLogin(data.user);
+    }catch(e){setError(e.message||'Gabim gjatë kyçjes.');}
+    setLoading(false);
+  };
+  const onKey=e=>{if(e.key==='Enter')handleSubmit();};
+  return (
+    <div className="auth-page">
+      <div className="auth-left">
+        <div className="auth-logo-wrap"><ShpeLogo height={72} dark={true}/></div>
+        <h1 className="auth-headline">Rezervo <em>Sallën</em><br/>Tënde</h1>
+        <p className="auth-tagline">Sistemi zyrtar i rezervimit të sallave të konferencës për Shkollën Profesionale Elbasan.</p>
+        <div className="auth-dots">{Array(20).fill(0).map((_,i)=><span key={i}/>)}</div>
+        <div className="auth-strip"/>
+      </div>
+      <div className="auth-right">
+        <div style={{marginBottom:28}}><ShpeLogo height={52}/></div>
+        <h2 className="auth-form-title">Mirë se vini</h2>
+        <p className="auth-form-sub">Kyçuni për të rezervuar sallat e konferencës</p>
+        {offline && <div className="alert alert-warning">⚠️ <strong>Backend nuk është aktiv.</strong> Ekzekuto <code>npm run dev</code> në folderin backend.</div>}
+        <div className="tab-row">
+          <button className={`tab-btn ${tab==='login'?'active':''}`} onClick={()=>{setTab('login');setError('');}}>Kyçu</button>
+          <button className={`tab-btn ${tab==='register'?'active':''}`} onClick={()=>{setTab('register');setError('');}}>Regjistrohu</button>
+        </div>
+        {error && <div className="alert alert-error">⚠️ {error}</div>}
+        <div className="fade-in" key={tab}>
+          {tab==='register'&&<div className="form-group"><label className="form-label">Emri i Plotë</label><input className="form-input" placeholder="Arben Hoxha" value={form.name} onChange={set('name')} onKeyDown={onKey}/></div>}
+          <div className="form-group"><label className="form-label">Email</label><input className="form-input" type="email" placeholder="email@shpe.al" value={form.email} onChange={set('email')} onKeyDown={onKey}/></div>
+          <div className="form-group"><label className="form-label">Fjalëkalimi</label><input className="form-input" type="password" placeholder="••••••••" value={form.password} onChange={set('password')} onKeyDown={onKey}/></div>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading||offline} style={{marginTop:4}}>
+            {loading?<Spinner/>:null} {loading?'Duke u kyçur...':(tab==='login'?'Kyçu':'Regjistrohu')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SIDEBAR ────────────────────────────────────────────────────
+function Sidebar({user,page,onNavigate,onLogout}){
+  const isAdmin=user.role==='admin';
+  const initials=user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const nav=[
+    {id:'dashboard',       icon:'🏠',label:'Kryefaqja'},
+    {id:'rooms',           icon:'🏛️',label:'Sallat'},
+    {id:'my-reservations', icon:'📅',label:'Rezervimet e Mia'},
+  ];
+  const adminNav=[
+    {id:'admin-reservations',icon:'📋',label:'Të Gjitha Rezervimet'},
+    {id:'admin-rooms',       icon:'🏗️',label:'Menaxho Sallat'},
+    {id:'admin-stats',       icon:'📊',label:'Statistikat'},
+  ];
+  return (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <ShpeLogo height={42} dark={true}/>
+      </div>
+      <nav className="sidebar-nav">
+        <div className="sidebar-section">Kryesore</div>
+        {nav.map(i=>(
+          <button key={i.id} className={`nav-item ${page===i.id?'active':''}`} onClick={()=>onNavigate(i.id)}>
+            <span className="nav-icon">{i.icon}</span>{i.label}
+          </button>
+        ))}
+        {isAdmin&&<>
+          <div className="sidebar-section" style={{marginTop:12}}>Administrim</div>
+          {adminNav.map(i=>(
+            <button key={i.id} className={`nav-item ${page===i.id?'active':''}`} onClick={()=>onNavigate(i.id)}>
+              <span className="nav-icon">{i.icon}</span>{i.label}
+            </button>
+          ))}
+        </>}
+      </nav>
+      <div className="sidebar-footer">
+        <div className="user-chip" onClick={onLogout} title="Dilni">
+          <div className="user-avatar">{initials}</div>
+          <div className="user-info">
+            <div className="user-name">{user.name}</div>
+            <div className="user-role">{user.role==='admin'?'⭐ Admin':'Përdorues'}</div>
+          </div>
+          <span style={{color:'rgba(255,255,255,0.3)',fontSize:'0.8rem'}}>↗</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function Dashboard({user,onNavigate}){
+  const {data:reservations,loading,error,reload}=useApi(()=>api.get('/reservations'));
+  const {data:rooms}=useApi(()=>api.get('/rooms'));
+  const active=(reservations||[]).filter(r=>r.status==='active');
+  const cancelled=(reservations||[]).filter(r=>r.status==='cancelled');
+  return (
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Mirëdita, {user.name.split(' ')[0]} 👋</h1>
+        <p className="page-subtitle">Shkolla Profesionale Elbasan — Sistem Rezervimi</p>
+      </div>
+      <div className="stats-grid">
+        <div className="stat-card"><div className="stat-accent-circle">📅</div><div className="stat-label">Rezervime Aktive</div><div className="stat-value">{loading?'—':active.length}</div></div>
+        <div className="stat-card"><div className="stat-accent-circle">🏛️</div><div className="stat-label">Salla Disponueshme</div><div className="stat-value">{rooms?rooms.length:'—'}</div></div>
+        <div className="stat-card"><div className="stat-accent-circle">✅</div><div className="stat-label">Rezervime Totale</div><div className="stat-value">{loading?'—':(reservations||[]).length}</div></div>
+      </div>
+      <div className="table-card">
+        <div className="table-header">
+          <div className="table-title">Rezervimet e Ardhshme</div>
+          <button className="btn btn-orange btn-sm" onClick={()=>onNavigate('rooms')}>+ Rezervo</button>
+        </div>
+        {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:
+          active.length===0?(
+            <div className="empty-state">
+              <div className="empty-icon">🏫</div>
+              <div className="empty-title">Asnjë rezervim aktiv</div>
+              <p className="text-muted" style={{fontSize:'0.87rem'}}>Rezervoni një sallë tani</p>
+            </div>
+          ):(
+            <table>
+              <thead><tr><th>Salla</th><th>Data</th><th>Ora</th><th>Statusi</th></tr></thead>
+              <tbody>
+                {active.slice(0,6).map(r=>(
+                  <tr key={r.id}>
+                    <td><strong>{r.room_name}</strong></td>
+                    <td>{r.date}</td>
+                    <td>⏰ {r.start_time?.slice(0,5)} – {r.end_time?.slice(0,5)}</td>
+                    <td><span className="badge badge-active">● Aktiv</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+      </div>
+    </div>
+  );
+}
+
+// ── ROOMS PAGE ────────────────────────────────────────────────
+function RoomsPage(){
+  const [search,setSearch]=useState('');
+  const [selectedRoom,setSelectedRoom]=useState(null);
+  const {data:rooms,loading,error,reload}=useApi(()=>api.get('/rooms'));
+  const filtered=(rooms||[]).filter(r=>
+    r.name.toLowerCase().includes(search.toLowerCase())||(r.location||'').toLowerCase().includes(search.toLowerCase())
+  );
+  return (
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Sallat e Disponueshme</h1>
+        <p className="page-subtitle">Zgjidhni sallën dhe rezervoni orarin</p>
+      </div>
+      <div className="topbar">
+        <div className="search-box"><span>🔍</span><input placeholder="Kërko sallën..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <span className="text-sm text-muted">{filtered.length} salla</span>
+      </div>
+      {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:(
+        <div className="rooms-grid">
+          {filtered.map((room,i)=>{
+            const equip=parseEquip(room.equipment);
+            return (
+              <div key={room.id} className="room-card">
+                <div className="room-card-accent"/>
+                <div className="room-number">SHPE Elbasan · Salla</div>
+                <div className="room-name">{room.name}</div>
+                <div className="room-location">📍 {room.location}</div>
+                <div className="text-sm text-muted">👤 {room.capacity} persona</div>
+                <div className="tags">{equip.map(e=><span key={e} className="tag">{e}</span>)}</div>
+                <button className="btn btn-primary" style={{marginTop:20}} onClick={()=>setSelectedRoom(room)}>Rezervo →</button>
+              </div>
+            );
+          })}
+          {filtered.length===0&&<div style={{gridColumn:'1/-1'}}><div className="empty-state"><div className="empty-icon">🏛️</div><div className="empty-title">Asnjë sallë u gjet</div></div></div>}
+        </div>
+      )}
+      {selectedRoom&&<ReservationModal room={selectedRoom} onClose={()=>setSelectedRoom(null)}/>}
+    </div>
+  );
+}
+
+// ── RESERVATION MODAL ─────────────────────────────────────────
+function ReservationModal({room,onClose}){
+  const [date,setDate]=useState(''); const [startTime,setStartTime]=useState(''); const [endTime,setEndTime]=useState('');
+  const [booked,setBooked]=useState([]); const [success,setSuccess]=useState(false);
+  const [error,setError]=useState(''); const [loading,setLoading]=useState(false); const [checking,setChecking]=useState(false);
+  const equip=parseEquip(room.equipment);
+  const hours=['08:00','09:00','10:00','11:00','12:00','13:00','14:00'];
+  useEffect(()=>{
+    if(!date){setBooked([]);return;}
+    setChecking(true);
+    api.get(`/reservations/available?room_id=${room.id}&date=${date}`).then(d=>setBooked(d)).catch(()=>setBooked([])).finally(()=>setChecking(false));
+  },[date,room.id]);
+  const isBooked=h=>booked.some(b=>h>=b.start_time.slice(0,5)&&h<b.end_time.slice(0,5));
+  const handleSubmit=async()=>{
+    if(!date){setError('Zgjidhni datën');return;}
+    if(!startTime){setError('Zgjidhni orën e fillimit');return;}
+    if(!endTime){setError('Zgjidhni orën e mbarimit');return;}
+    if(startTime>=endTime){setError('Ora e fillimit duhet të jetë para orës së mbarimit');return;}
+    setError(''); setLoading(true);
+    try{ await api.post('/reservations',{room_id:room.id,date,start_time:startTime,end_time:endTime}); setSuccess(true); }
+    catch(e){setError(e.message);}
+    setLoading(false);
+  };
+  if(success) return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()} style={{textAlign:'center'}}>
+        <div style={{fontSize:'3.5rem',marginBottom:16}}>🎉</div>
+        <h2 className="modal-title">Rezervimi u krye!</h2>
+        <p className="modal-sub" style={{marginBottom:24}}><strong>Salla {room.name}</strong><br/>📅 {date} · ⏰ {startTime} – {endTime}</p>
+        <button className="btn btn-primary" onClick={onClose}>Mbyll</button>
+      </div>
+    </div>
+  );
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h2 className="modal-title">Rezervo Sallën</h2>
+        <p className="modal-sub">Salla {room.name} · {room.location} · 👤 {room.capacity} persona</p>
+        <div className="tags" style={{marginBottom:20}}>{equip.map(e=><span key={e} className="tag">{e}</span>)}</div>
+        {error&&<div className="alert alert-error">⚠️ {error}</div>}
+        <div className="form-group">
+          <label className="form-label">Data</label>
+          <input type="date" className="form-input" value={date} min={new Date().toISOString().split('T')[0]} onChange={e=>{setDate(e.target.value);setStartTime('');setEndTime('');}}/>
+        </div>
+        {date&&(
+          <>
+            {checking?(<div style={{display:'flex',gap:8,color:'var(--muted)',fontSize:'0.84rem',marginBottom:14}}><Spinner dark/> Duke kontrolluar oraret e zëna...</div>)
+              :booked.length>0&&(<div className="alert alert-warning" style={{fontSize:'0.82rem'}}>⚠️ Salla ka {booked.length} rezervim(e) aktiv. Oraret e zëna: {booked.map(b=>`${b.start_time.slice(0,5)}–${b.end_time.slice(0,5)}`).join(', ')}</div>)}
+            <div className="two-col">
+              <div className="form-group">
+                <label className="form-label">Ora Fillimit</label>
+                <select className="form-input" value={startTime} onChange={e=>{setStartTime(e.target.value);setEndTime('');}}>
+                  <option value="">Zgjidhni...</option>
+                  {hours.map(h=><option key={h} value={h} disabled={isBooked(h)}>{h} {isBooked(h)?'🔴 E zënë':''}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Ora Mbarimit</label>
+                <select className="form-input" value={endTime} onChange={e=>setEndTime(e.target.value)}>
+                  <option value="">Zgjidhni...</option>
+                  {hours.filter(h=>h>startTime).map(h=><option key={h} value={h} disabled={isBooked(h)}>{h} {isBooked(h)?'🔴':''}</option>)}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
+        {date&&startTime&&endTime&&<div className="alert alert-info">📋 Salla {room.name} · {date} · {startTime} – {endTime}</div>}
+        <div className="modal-actions">
+          <button className="btn btn-secondary" onClick={onClose}>Anulo</button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>{loading?<Spinner/>:'✓'} Konfirmo Rezervimin</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MY RESERVATIONS ───────────────────────────────────────────
+function MyReservations(){
+  const {data:reservations,loading,error,reload}=useApi(()=>api.get('/reservations'));
+  const [cancelling,setCancelling]=useState(null); const [msg,setMsg]=useState('');
+  const handleCancel=async id=>{
+    try{ await api.del(`/reservations/${id}`); setMsg('✅ Rezervimi u anulua me sukses'); reload(); }
+    catch(e){setMsg('❌ Gabim: '+e.message);}
+    setCancelling(null); setTimeout(()=>setMsg(''),3000);
+  };
+  const active=(reservations||[]).filter(r=>r.status==='active');
+  const cancelled=(reservations||[]).filter(r=>r.status==='cancelled');
+  return (
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Rezervimet e Mia</h1>
+        <p className="page-subtitle">{loading?'...':`${active.length} aktive · ${cancelled.length} të anulluara`}</p>
+      </div>
+      {msg&&<div className={`alert ${msg.startsWith('❌')?'alert-error':'alert-success'}`}>{msg}</div>}
+      {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:(
+        <>
+          <div className="table-card" style={{marginBottom:22}}>
+            <div className="table-header"><div className="table-title">Aktive ({active.length})</div></div>
+            {active.length===0?(<div className="empty-state"><div className="empty-icon">📭</div><div className="empty-title">Asnjë rezervim aktiv</div></div>):(
+              <table>
+                <thead><tr><th>Salla</th><th>Vendndodhja</th><th>Data</th><th>Ora</th><th>Veprime</th></tr></thead>
+                <tbody>
+                  {active.map(r=>(
+                    <tr key={r.id}>
+                      <td><strong>{r.room_name}</strong></td>
+                      <td className="text-muted">{r.location}</td>
+                      <td>{r.date}</td>
+                      <td>⏰ {r.start_time?.slice(0,5)} – {r.end_time?.slice(0,5)}</td>
+                      <td>
+                        {cancelling===r.id?(
+                          <div style={{display:'flex',gap:8}}>
+                            <button className="btn btn-danger btn-sm" onClick={()=>handleCancel(r.id)}>Po, Anulo</button>
+                            <button className="btn btn-ghost btn-sm" onClick={()=>setCancelling(null)}>Jo</button>
+                          </div>
+                        ):(<button className="btn btn-danger btn-sm" onClick={()=>setCancelling(r.id)}>Anulo</button>)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          {cancelled.length>0&&(
+            <div className="table-card">
+              <div className="table-header"><div className="table-title">Historia ({cancelled.length})</div></div>
+              <table>
+                <thead><tr><th>Salla</th><th>Data</th><th>Ora</th><th>Statusi</th></tr></thead>
+                <tbody>
+                  {cancelled.map(r=>(
+                    <tr key={r.id}>
+                      <td><strong>{r.room_name}</strong></td><td>{r.date}</td>
+                      <td>⏰ {r.start_time?.slice(0,5)} – {r.end_time?.slice(0,5)}</td>
+                      <td><span className="badge badge-cancelled">✕ Anuluar</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── ADMIN: TË GJITHA REZERVIMET ───────────────────────────────
+function AdminReservations(){
+  const {data:reservations,loading,error,reload}=useApi(()=>api.get('/admin/reservations'));
+  const [search,setSearch]=useState(''); const [msg,setMsg]=useState('');
+  const filtered=(reservations||[]).filter(r=>
+    r.user_name?.toLowerCase().includes(search.toLowerCase())||r.room_name?.toLowerCase().includes(search.toLowerCase())||r.email?.toLowerCase().includes(search.toLowerCase())
+  );
+  const handleDelete=async id=>{
+    try{ await api.del(`/admin/reservations/${id}`); setMsg('✅ Rezervimi u fshi'); reload(); }
+    catch(e){setMsg('❌ '+e.message);}
+    setTimeout(()=>setMsg(''),3000);
+  };
+  return (
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Të Gjitha Rezervimet</h1>
+        <p className="page-subtitle">{loading?'...':`${(reservations||[]).length} rezervime gjithsej`}</p>
+      </div>
+      {msg&&<div className={`alert ${msg.startsWith('❌')?'alert-error':'alert-success'}`}>{msg}</div>}
+      <div className="topbar">
+        <div className="search-box"><span>🔍</span><input placeholder="Kërko përdorues, sallë..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <button className="btn btn-secondary btn-sm" onClick={reload}>↻ Rifresko</button>
+      </div>
+      {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:(
+        <div className="table-card">
+          <table>
+            <thead><tr><th>Salla</th><th>Përdoruesi</th><th>Data</th><th>Ora</th><th>Statusi</th><th>Veprime</th></tr></thead>
+            <tbody>
+              {filtered.map(r=>(
+                <tr key={r.id}>
+                  <td><strong>{r.room_name}</strong></td>
+                  <td><div>{r.user_name}</div><div className="text-sm text-muted">{r.email}</div></td>
+                  <td>{r.date}</td>
+                  <td>⏰ {r.start_time?.slice(0,5)} – {r.end_time?.slice(0,5)}</td>
+                  <td><span className={`badge ${r.status==='active'?'badge-active':'badge-cancelled'}`}>{r.status==='active'?'● Aktiv':'✕ Anuluar'}</span></td>
+                  <td>{r.status==='active'&&<button className="btn btn-danger btn-sm" onClick={()=>handleDelete(r.id)}>🗑️ Fshi</button>}</td>
+                </tr>
+              ))}
+              {filtered.length===0&&<tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'var(--muted)'}}>Asnjë rezultat</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ADMIN: MENAXHO SALLAT ─────────────────────────────────────
+function AdminRooms(){
+  const {data:rooms,loading,error,reload}=useApi(()=>api.get('/rooms'));
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({name:'',location:'',capacity:'',equipment:''});
+  const [saving,setSaving]=useState(false); const [formErr,setFormErr]=useState(''); const [msg,setMsg]=useState('');
+  const set=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const handleAdd=async()=>{
+    if(!form.name||!form.location||!form.capacity){setFormErr('Plotëso të gjitha fushat');return;}
+    setSaving(true); setFormErr('');
+    try{
+      const equip=form.equipment.split(',').map(s=>s.trim()).filter(Boolean);
+      await api.post('/rooms',{name:form.name,location:form.location,capacity:parseInt(form.capacity),equipment:equip});
+      setShowModal(false); setForm({name:'',location:'',capacity:'',equipment:''}); setMsg('✅ Salla u shtua me sukses!'); reload();
+    }catch(e){setFormErr(e.message);}
+    setSaving(false); setTimeout(()=>setMsg(''),3000);
+  };
+  const handleDelete=async id=>{
+    if(!confirm('A jeni i sigurt që doni të fshini këtë sallë?'))return;
+    try{ await api.del(`/rooms/${id}`); setMsg('✅ Salla u fshi'); reload(); }
+    catch(e){setMsg('❌ '+e.message);}
+    setTimeout(()=>setMsg(''),3000);
+  };
+  return (
+    <div className="fade-in">
+      <div className="page-header"><h1 className="page-title">Menaxho Sallat</h1><p className="page-subtitle">Shto ose fshi sallat e konferencës</p></div>
+      {msg&&<div className={`alert ${msg.startsWith('❌')?'alert-error':'alert-success'}`}>{msg}</div>}
+      <div style={{display:'flex',justifyContent:'flex-end',marginBottom:20,gap:10}}>
+        <button className="btn btn-secondary btn-sm" onClick={reload}>↻ Rifresko</button>
+        <button className="btn btn-orange btn-sm" onClick={()=>setShowModal(true)}>+ Shto Sallë</button>
+      </div>
+      {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:(
+        <div className="table-card">
+          <table>
+            <thead><tr><th>#</th><th>Emri</th><th>Vendndodhja</th><th>Kapaciteti</th><th>Pajisjet</th><th>Veprime</th></tr></thead>
+            <tbody>
+              {(rooms||[]).map((room,i)=>{
+                const equip=parseEquip(room.equipment);
+                return (
+                  <tr key={room.id}>
+                    <td className="text-muted">{i+1}</td>
+                    <td><strong style={{fontSize:'1.3rem',color:'var(--shpe-blue)',fontFamily:"'Playfair Display',serif"}}>{room.name}</strong></td>
+                    <td>📍 {room.location}</td>
+                    <td>👤 {room.capacity}</td>
+                    <td><div className="tags">{equip.map(e=><span key={e} className="tag">{e}</span>)}</div></td>
+                    <td><button className="btn btn-danger btn-sm" onClick={()=>handleDelete(room.id)}>🗑️ Fshi</button></td>
+                  </tr>
+                );
+              })}
+              {(rooms||[]).length===0&&<tr><td colSpan={6} style={{textAlign:'center',padding:40,color:'var(--muted)'}}>Asnjë sallë</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {showModal&&(
+        <div className="modal-overlay" onClick={()=>setShowModal(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <h2 className="modal-title">Shto Sallë të Re</h2>
+            <p className="modal-sub">Plotëso informacionin e sallës</p>
+            {formErr&&<div className="alert alert-error">⚠️ {formErr}</div>}
+            <div className="form-group"><label className="form-label">Emri i Sallës *</label><input className="form-input" placeholder="p.sh. 100" value={form.name} onChange={set('name')}/></div>
+            <div className="form-group"><label className="form-label">Vendndodhja *</label><input className="form-input" placeholder="p.sh. Kati 1" value={form.location} onChange={set('location')}/></div>
+            <div className="form-group"><label className="form-label">Kapaciteti *</label><input className="form-input" type="number" placeholder="30" value={form.capacity} onChange={set('capacity')}/></div>
+            <div className="form-group"><label className="form-label">Pajisjet (ndaj me presje)</label><input className="form-input" placeholder="projektor, whiteboard, wifi" value={form.equipment} onChange={set('equipment')}/></div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={()=>setShowModal(false)}>Anulo</button>
+              <button className="btn btn-primary" onClick={handleAdd} disabled={saving}>{saving?<Spinner/>:'+'} Shto Sallën</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ADMIN: STATISTIKAT ────────────────────────────────────────
+function AdminStats(){
+  const {data:stats,loading,error,reload}=useApi(()=>api.get('/admin/stats'));
+  const maxCount=stats?.dailyStats?.length?Math.max(...stats.dailyStats.map(d=>d.count),1):1;
+  return (
+    <div className="fade-in">
+      <div className="page-header"><h1 className="page-title">Statistikat</h1><p className="page-subtitle">Pamje e përgjithshme e sistemit</p></div>
+      {loading?<Loading/>:error?<ApiError msg={error} onRetry={reload}/>:stats&&(
+        <>
+          <div className="stats-grid">
+            <div className="stat-card"><div className="stat-accent-circle">📅</div><div className="stat-label">Rezervime Totale</div><div className="stat-value">{stats.total_reservations}</div></div>
+            <div className="stat-card"><div className="stat-accent-circle">🏛️</div><div className="stat-label">Salla Aktive</div><div className="stat-value">{stats.total_rooms}</div></div>
+            <div className="stat-card"><div className="stat-accent-circle">👥</div><div className="stat-label">Përdorues</div><div className="stat-value">{stats.total_users}</div></div>
+          </div>
+          <div className="admin-grid">
+            <div className="table-card" style={{padding:0}}>
+              <div className="table-header"><div className="table-title">🏆 Sallat Më Populare</div></div>
+              <div style={{padding:'8px 26px 24px'}}>
+                {(stats.topRooms||[]).length===0?(<p className="text-muted" style={{padding:'20px 0'}}>Asnjë të dhënë akoma</p>):(
+                  (stats.topRooms||[]).map((room,i)=>(
+                    <div key={room.name} className="top-room-item">
+                      <div className={`rank-badge ${i===0?'gold':''}`}>#{i+1}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:700,fontSize:'0.88rem'}}>Salla {room.name}</div>
+                        <div className="progress-bar"><div className="progress-fill" style={{width:`${(room.total/(stats.topRooms[0]?.total||1))*100}%`}}/></div>
+                      </div>
+                      <div style={{fontWeight:800,color:'var(--shpe-orange)'}}>{room.total}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="table-card" style={{padding:0}}>
+              <div className="table-header"><div className="table-title">📈 Aktiviteti (7 Ditë)</div></div>
+              <div style={{padding:'24px 26px'}}>
+                {(stats.dailyStats||[]).length===0?(<p className="text-muted">Asnjë aktivitet akoma</p>):(
+                  <div style={{display:'flex',alignItems:'flex-end',gap:10,height:120}}>
+                    {(stats.dailyStats||[]).map(d=>(
+                      <div key={d.date} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
+                        <div style={{fontSize:'0.7rem',fontWeight:700,color:'var(--shpe-orange)'}}>{d.count}</div>
+                        <div style={{width:'100%',height:`${(d.count/maxCount)*80}px`,minHeight:4,background:'linear-gradient(180deg,var(--shpe-blue-light),var(--shpe-blue))',borderRadius:'4px 4px 0 0'}}/>
+                        <div style={{fontSize:'0.63rem',color:'var(--muted)',transform:'rotate(-30deg)',whiteSpace:'nowrap'}}>{d.date.slice(5)}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── BACKEND STATUS ────────────────────────────────────────────
+function BackendStatus(){
+  const [online,setOnline]=useState(null);
+  useEffect(()=>{
+    const check=()=>checkBackend().then(ok=>setOnline(ok));
+    check(); const t=setInterval(check,15000); return()=>clearInterval(t);
+  },[]);
+  if(online===null)return null;
+  return <div className={`backend-status ${online?'status-online':'status-offline'}`}><div className="status-dot"/>{online?'Backend Online':'Backend Offline'}</div>;
+}
+
+// ── APP ROOT ──────────────────────────────────────────────────
+function App(){
+  const [user,setUser]=useState(()=>{ const s=localStorage.getItem('cb_user'); return s?JSON.parse(s):null; });
+  const [page,setPage]=useState('dashboard');
+  const handleLogin=u=>{ localStorage.setItem('cb_user',JSON.stringify(u)); setUser(u); };
+  const handleLogout=()=>{ localStorage.removeItem('cb_token'); localStorage.removeItem('cb_user'); setUser(null); setPage('dashboard'); };
+  const renderPage=()=>{
+    switch(page){
+      case 'dashboard':          return <Dashboard user={user} onNavigate={setPage}/>;
+      case 'rooms':              return <RoomsPage user={user}/>;
+      case 'my-reservations':    return <MyReservations/>;
+      case 'admin-reservations': return user.role==='admin'?<AdminReservations/>:<Dashboard user={user} onNavigate={setPage}/>;
+      case 'admin-rooms':        return user.role==='admin'?<AdminRooms/>:<Dashboard user={user} onNavigate={setPage}/>;
+      case 'admin-stats':        return user.role==='admin'?<AdminStats/>:<Dashboard user={user} onNavigate={setPage}/>;
+      default:                   return <Dashboard user={user} onNavigate={setPage}/>;
+    }
+  };
+  if(!user) return <><AuthPage onLogin={handleLogin}/><BackendStatus/></>;
+  return (
+    <>
+      <div className="app-layout">
+        <Sidebar user={user} page={page} onNavigate={setPage} onLogout={handleLogout}/>
+        <main className="main-content fade-in" key={page}>{renderPage()}</main>
+      </div>
+      <BackendStatus/>
+    </>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
